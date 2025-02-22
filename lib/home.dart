@@ -11,6 +11,9 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> tasks = [];
   bool showActiveTask = true;
 
+  TextEditingController  _taskController = TextEditingController();
+
+
   void showTaskDialouge({int? index}) {
     showDialog(
       context: context,
@@ -22,7 +25,8 @@ class _HomeState extends State<Home> {
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
           child: TextField(
-            keyboardType: TextInputType.number,
+            controller: _taskController,
+           // keyboardType: TextInputType.number,
             decoration: InputDecoration(
               hintText: "Task",
               border: OutlineInputBorder(
@@ -42,8 +46,10 @@ class _HomeState extends State<Home> {
                 Navigator.pop(context);
               },
               child: Text("Cancel")),
+              // add button
           ElevatedButton(
             onPressed: () {
+              _addTask(_taskController.text);
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
@@ -57,8 +63,25 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _addTask() {
-    setState(() {});
+ void _addTask(String task) {
+  if (task.isNotEmpty) {
+    setState(() {
+      tasks.add({"Task": task, "completed": false});
+    });
+    _taskController.clear(); // Clear the input field
+  }
+}
+
+  void _toggleTaskStatus(int index) {
+    setState(() {
+      tasks[index]["completed"] = !tasks[index]["completed"];
+    });
+  }
+
+  void _deleteTask(int index) {
+    setState(() {
+      tasks.removeAt(index);
+    });
   }
 
   @override
@@ -136,6 +159,24 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
+          ),
+          Expanded(
+            child: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  return Dismissible(
+                    key: Key(tasks[index]["Task"]),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 5,right: 5),
+                      child: Card(
+                        child: ListTile(
+                          title: Text(tasks[index]["Task"]),
+                          trailing: Text(tasks[index]["completed"].toString()),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
           )
         ],
       ),
