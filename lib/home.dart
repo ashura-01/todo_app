@@ -11,13 +11,54 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> tasks = [];
   bool showActiveTask = true;
 
-  void showTaskDialouge({int? index})
-  {
-     showDialog(context: context, builder: (BuildContext context)=> AlertDialog(
-       shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(3),
+  void showTaskDialouge({int? index}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: Text("Add Tasks"),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: TextField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: "Task",
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black, width: 2),
+                borderRadius: BorderRadius.all(Radius.circular(3)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black, width: 1),
+                borderRadius: BorderRadius.all(Radius.circular(3)),
+              ),
+            ),
           ),
-     ));
+        ),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+            child: Text(
+              "Add",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addTask() {
+    setState(() {});
   }
 
   @override
@@ -98,8 +139,10 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
-
-      floatingActionButton: FloatingActionButton(onPressed: (){},child: Icon(Icons.add),),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showTaskDialouge(),
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
