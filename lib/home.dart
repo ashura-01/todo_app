@@ -11,8 +11,7 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> tasks = [];
   bool showActiveTask = true;
 
-  TextEditingController  _taskController = TextEditingController();
-
+  TextEditingController _taskController = TextEditingController();
 
   void showTaskDialouge({int? index}) {
     showDialog(
@@ -26,7 +25,7 @@ class _HomeState extends State<Home> {
           width: MediaQuery.of(context).size.width * 0.9,
           child: TextField(
             controller: _taskController,
-           // keyboardType: TextInputType.number,
+            // keyboardType: TextInputType.number,
             decoration: InputDecoration(
               hintText: "Task",
               border: OutlineInputBorder(
@@ -46,7 +45,7 @@ class _HomeState extends State<Home> {
                 Navigator.pop(context);
               },
               child: Text("Cancel")),
-              // add button
+          // add button
           ElevatedButton(
             onPressed: () {
               _addTask(_taskController.text);
@@ -63,14 +62,14 @@ class _HomeState extends State<Home> {
     );
   }
 
- void _addTask(String task) {
-  if (task.isNotEmpty) {
-    setState(() {
-      tasks.add({"Task": task, "completed": false});
-    });
-    _taskController.clear(); // Clear the input field
+  void _addTask(String task) {
+    if (task.isNotEmpty) {
+      setState(() {
+        tasks.add({"Task": task, "completed": false});
+      });
+      _taskController.clear(); // Clear the input field
+    }
   }
-}
 
   void _toggleTaskStatus(int index) {
     setState(() {
@@ -83,6 +82,9 @@ class _HomeState extends State<Home> {
       tasks.removeAt(index);
     });
   }
+
+  int get activeCount => tasks.where((task) => !task['completed']).length;
+  int get completedCOunt => tasks.where((task)=>task["completed"]).length;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +125,7 @@ class _HomeState extends State<Home> {
                             fontSize: 25, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        "10",
+                        activeCount.toString(),
                         style: TextStyle(
                             fontSize: 25, fontWeight: FontWeight.w500),
                       ),
@@ -150,7 +152,7 @@ class _HomeState extends State<Home> {
                             fontSize: 25, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        "10",
+                        completedCOunt.toString(),
                         style: TextStyle(
                             fontSize: 25, fontWeight: FontWeight.w500),
                       ),
@@ -162,21 +164,53 @@ class _HomeState extends State<Home> {
           ),
           Expanded(
             child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  return Dismissible(
-                    key: Key(tasks[index]["Task"]),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 5,right: 5),
-                      child: Card(
-                        child: ListTile(
-                          title: Text(tasks[index]["Task"]),
-                          trailing: Text(tasks[index]["completed"].toString()),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                return Dismissible(
+                  key: Key(UniqueKey().toString()), // Ensure unique keys
+                  background: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(left: 10),
+                    color: Colors.greenAccent,
+                    child: Icon(Icons.done, color: Colors.white),
+                  ),
+                  secondaryBackground: Container(
+                    color: Colors.redAccent,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 10),
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) {
+                    if (direction == DismissDirection.startToEnd) {
+                      _toggleTaskStatus(index);
+                    } else {
+                      _deleteTask(index);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 3,left: 5,bottom: 1,right: 5,),
+                    child: Card(
+                      child: ListTile(
+                        title: Text(
+                          tasks[index]["Task"],
+                          style: TextStyle(
+                            fontSize: 16,
+                            decoration: tasks[index]["completed"]
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
                         ),
+                        leading: Checkbox(
+                          shape: CircleBorder(),
+                            value: tasks[index]["completed"],
+                            onChanged: (value) => _toggleTaskStatus(index)),
+                        trailing: IconButton(onPressed: (){}, icon: Icon(Icons.edit)),
                       ),
                     ),
-                  );
-                }),
+                  ),
+                );
+              },
+            ),
           )
         ],
       ),
