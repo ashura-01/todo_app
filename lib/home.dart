@@ -11,16 +11,18 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> tasks = [];
   bool showActiveTask = true;
 
-  TextEditingController _taskController = TextEditingController();
-
   void showTaskDialouge({int? index}) {
+    TextEditingController _taskController = TextEditingController(
+      text: (index != null) ? tasks[index]["Task"] : '',
+    );
+
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
-        title: Text("Add Tasks"),
+        title: Text((index != null) ? "Edit Task" : "Add Tasks"),
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
           child: TextField(
@@ -48,8 +50,14 @@ class _HomeState extends State<Home> {
           // add button
           ElevatedButton(
             onPressed: () {
-              _addTask(_taskController.text);
-              Navigator.pop(context);
+              if (_taskController.text.isNotEmpty) {
+                if (index == null) {
+                  _addTask(_taskController.text);
+                }
+                else{
+                  _editTask(index, _taskController.text);
+                }
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
             child: Text(
@@ -67,8 +75,16 @@ class _HomeState extends State<Home> {
       setState(() {
         tasks.add({"Task": task, "completed": false});
       });
-      _taskController.clear(); // Clear the input field
+      Navigator.pop(context);
+      // Clear the input field
     }
+  }
+
+  void _editTask(int index, String str) {
+    setState(() {
+      tasks[index]["Task"] = str;
+      Navigator.pop(context);
+    });
   }
 
   void _toggleTaskStatus(int index) {
@@ -84,7 +100,7 @@ class _HomeState extends State<Home> {
   }
 
   int get activeCount => tasks.where((task) => !task['completed']).length;
-  int get completedCOunt => tasks.where((task)=>task["completed"]).length;
+  int get completedCOunt => tasks.where((task) => task["completed"]).length;
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +204,12 @@ class _HomeState extends State<Home> {
                     }
                   },
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 3,left: 5,bottom: 1,right: 5,),
+                    padding: const EdgeInsets.only(
+                      top: 3,
+                      left: 5,
+                      bottom: 1,
+                      right: 5,
+                    ),
                     child: Card(
                       child: ListTile(
                         title: Text(
@@ -201,10 +222,13 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         leading: Checkbox(
-                          shape: CircleBorder(),
+                            shape: CircleBorder(),
                             value: tasks[index]["completed"],
                             onChanged: (value) => _toggleTaskStatus(index)),
-                        trailing: IconButton(onPressed: (){}, icon: Icon(Icons.edit)),
+                        trailing: IconButton(
+                            onPressed: () {
+                              showTaskDialouge(index: index);
+                            }, icon: Icon(Icons.edit)),
                       ),
                     ),
                   ),
